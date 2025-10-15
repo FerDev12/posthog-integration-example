@@ -2,11 +2,14 @@
 import { PostHog } from 'posthog-node'
 
 export default function PostHogClient() {
-  const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY
-  const posthogClient = new PostHog(POSTHOG_KEY as string, {
-    host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-    flushAt: 1,
-    flushInterval: 0
-  })
-  return posthogClient
+  const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+  const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+
+  if (process.env.NODE_ENV === 'production' && POSTHOG_KEY && POSTHOG_HOST) {
+    return new PostHog(POSTHOG_KEY as string, {
+      host: POSTHOG_HOST,
+      flushAt: 1,
+      flushInterval: 0
+    })
+  }
 }
