@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import jackOLantern from '../../public/images/jack-o-lantern.webp'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -9,11 +10,24 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import Link from "next/link"
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
+import { FrownIcon } from "lucide-react"
+import Image from "next/image"
+
+export type LoginFormProps = React.ComponentProps<"div"> & {
+  isSignUp?: boolean
+}
 
 export function LoginForm({
   className,
+  isSignUp = false,
   ...props
-}: React.ComponentProps<"div">) {
+}: LoginFormProps) {
+
+  const title = isSignUp ? 'Welcome back!' : 'Create your account'
+  const description = isSignUp ? 'Login to your account' : 'Fill up the form to create your new account'
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
@@ -21,9 +35,9 @@ export function LoginForm({
           <form className="p-6 md:p-8">
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <h1 className="text-2xl font-bold">{title}</h1>
                 <p className="text-muted-foreground text-balance">
-                  Login to your Acme Inc account
+                  {description}
                 </p>
               </div>
               <Field>
@@ -38,12 +52,19 @@ export function LoginForm({
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <a
+                        href="#"
+                        className="ml-auto text-sm underline-offset-2 hover:underline"
+                      >
+                        Forgot your password?
+                      </a>
+                    </PopoverTrigger>
+                    <PopoverContent className="flex items-center gap-2 w-auto">
+                      Bad Luck <FrownIcon className="text-primary" />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <Input id="password" type="password" required />
               </Field>
@@ -83,16 +104,13 @@ export function LoginForm({
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                Don&apos;t have an account? <a href="#">Sign up</a>
+                {isSignUp ? 'Have an account?' : `Don't have an account?`}{' '}
+                <Link href={isSignUp ? '/sign-in' : '/sign-up'} className='transition-colors'>{isSignUp ? 'Sign In' : 'Sign Up'}</Link>
               </FieldDescription>
             </FieldGroup>
           </form>
           <div className="bg-muted relative hidden md:block">
-            <img
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
+            <Image src={jackOLantern} alt='Jack O lantern' fill />
           </div>
         </CardContent>
       </Card>
@@ -100,6 +118,6 @@ export function LoginForm({
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
-    </div>
+    </div >
   )
 }
