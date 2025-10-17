@@ -6,6 +6,7 @@ import * as schema from "@/db/schema";
 
 export const auth = betterAuth({
   plugins: [nextCookies()],
+  trustedOrigins: ["https://spooky-quizz.vercel.app", "http://localhost:3000"],
   emailAndPassword: {
     enabled: true,
   },
