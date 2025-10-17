@@ -1,6 +1,8 @@
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import heroImg from ".././../../../public/images/spooky-halloween-pumpkin-coding-on-computer-in-dar.jpg";
+import Link from "next/link";
+import { cn } from "@/lib/utils/cn";
 
 export function Hero() {
   return (
@@ -27,12 +29,18 @@ export function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 text-base"
+              <Link
+                href="/explore"
+                className={cn(
+                  buttonVariants({
+                    size: "lg",
+                    className:
+                      "bg-primary text-primary-foreground hover:bg-primary/90 text-base",
+                  })
+                )}
               >
                 Start Your Journey
-              </Button>
+              </Link>
               <Button
                 size="lg"
                 variant="outline"
