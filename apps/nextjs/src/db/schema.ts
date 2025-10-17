@@ -178,15 +178,59 @@ export const quizSessions = pgTable("quiz_sessions", {
   endedAt: timestamp("ended_at", { withTimezone: true }),
 });
 
-export const quizSessionsRelations = relations(quizSessions, ({ one }) => ({
-  user: one(users, { fields: [quizSessions.userId], references: [users.id] }),
-  quiz: one(quizes, { fields: [quizSessions.quizId], references: [quizes.id] }),
-}));
+export const quizSessionAnswers = pgTable("quiz_session_answers", {
+  id: text("id").primaryKey().$default(crypto.randomUUID),
+  sessionId: text("session_id").references(() => quizSessions.id, {
+    onDelete: "cascade",
+  }),
+  questionId: text("question_id").references(() => quizQuestions.id, {
+    onDelete: "cascade",
+  }),
+  selectedAnswerId: text("selected_answer_id").references(
+    () => quizAnswers.id,
+    { onDelete: "cascade" }
+  ),
+  isCorrect: boolean("is_correct").notNull(),
+  answeredAt: timestamp("answered_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const quizSessionAnswersRelations = relations(
+  quizSessionAnswers,
+  ({ one }) => ({
+    session: one(quizSessions, {
+      fields: [quizSessionAnswers.sessionId],
+      references: [quizSessions.id],
+    }),
+    question: one(quizQuestions, {
+      fields: [quizSessionAnswers.questionId],
+      references: [quizQuestions.id],
+    }),
+    selectedAnswer: one(quizAnswers, {
+      fields: [quizSessionAnswers.selectedAnswerId],
+      references: [quizAnswers.id],
+    }),
+  })
+);
+
+export const quizSessionsRelations = relations(
+  quizSessions,
+  ({ one, many }) => ({
+    user: one(users, { fields: [quizSessions.userId], references: [users.id] }),
+    quiz: one(quizes, {
+      fields: [quizSessions.quizId],
+      references: [quizes.id],
+    }),
+    answers: many(quizSessionAnswers),
+  })
+);
 
 export type Quiz = typeof quizes.$inferSelect;
 export type QuizQuestion = typeof quizQuestions.$inferSelect;
 export type QuizAnswer = typeof quizAnswers.$inferSelect;
 export type QuizSession = typeof quizSessions.$inferSelect;
+export type QuizSessionAnswer = typeof quizSessionAnswers.$inferSelect;
 
 export type QuizWithQuestionsAndAnswers = Quiz & {
   questions: (QuizQuestion & { answers: QuizAnswer[] })[];
