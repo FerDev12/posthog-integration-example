@@ -9,7 +9,8 @@
         "DATABASE_URL",
         "BETTER_AUTH_URL",
         "POSTHOG_API_KEY",
-        "POSTHOG_ENV_ID"
+        "POSTHOG_ENV_ID",
+        "UPLOADTHING_TOKEN"
       ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
