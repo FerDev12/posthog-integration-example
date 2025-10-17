@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,9 +45,8 @@ export function Quiz({
   sessionAnswers: initialSessionAnswers = [],
   initialShowResults = false,
 }: QuizProps) {
+  const searchParams = useSearchParams();
   const [selectedAnswer, setSelectedAnswer] = useState<string>("");
-  const [showResults, setShowResults] = useState(initialShowResults);
-  const [timeElapsed, setTimeElapsed] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [answerFeedback, setAnswerFeedback] = useState<{
     isCorrect: boolean;
@@ -59,6 +58,8 @@ export function Quiz({
   );
   const [currentSession, setCurrentSession] = useState(session);
   const router = useRouter();
+
+  const showResults = searchParams.get("showResults") === "true";
 
   // Find current question based on currentSession.currentQuestionId
   const currentQuestion =
