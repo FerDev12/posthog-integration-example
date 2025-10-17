@@ -2,15 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 export async function middleware(request: NextRequest) {
-  // const sessionCookie = getSessionCookie(request);
+  const sessionCookie = getSessionCookie(request);
 
-  // if (!sessionCookie) {
-  //   return NextResponse.redirect(new URL("/", request.url));
-  // }
+  const pathname = request.nextUrl.pathname;
+
+  const isLandingPage = pathname === "/";
+
+  if (!sessionCookie && !isLandingPage) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
+  }
 
   return NextResponse.next();
 }
 
-// export const config = {
-//   matcher: ["/((?!api|sign-in|sign-up|_next/static|_next/image|.*\\.png$).*)"], // Specify the routes the middleware applies to
-// };
+export const config = {
+  matcher: ["/((?!api|sign-in|sign-up|_next/static|_next/image|.*\\.png$).*)"], //
+};

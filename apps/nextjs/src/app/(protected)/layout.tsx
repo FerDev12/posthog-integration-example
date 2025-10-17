@@ -1,5 +1,11 @@
 import { ReactNode } from "react";
+import { ProtectedHeader } from "./_components/header";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
-  return <div>{children}</div>;
+  return (
+    <>
+      <ProtectedHeader />
+      <main>{children}</main>
+    </>
+  );
 }

@@ -105,6 +105,7 @@ export function LoginForm({
       await authClient.signIn.email(data, {
         onSuccess: (ctx) => {
           toast.success(`Welcome back!`);
+          router.replace("/explore");
         },
         onError: (ctx) => {
           toast.error("Something went wrong");
@@ -161,14 +162,12 @@ export function LoginForm({
                 render={({ field, fieldState }) => {
                   return (
                     <Field>
-                      <FieldLabel htmlFor="email">Email</FieldLabel>
+                      <FieldLabel>Email</FieldLabel>
                       <Input
                         {...field}
-                        aria-invalid={fieldState.invalid}
-                        id="email"
                         type="email"
                         placeholder="m@example.com"
-                        required
+                        aria-invalid={fieldState.invalid}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -185,7 +184,7 @@ export function LoginForm({
                   return (
                     <Field>
                       <div className="flex items-center">
-                        <FieldLabel htmlFor="password">Password</FieldLabel>
+                        <FieldLabel>Password</FieldLabel>
                         {!isSignUp && (
                           <Popover>
                             <PopoverTrigger asChild>
@@ -204,7 +203,6 @@ export function LoginForm({
                       </div>
                       <Input
                         {...field}
-                        id="password"
                         type="password"
                         aria-invalid={fieldState.invalid}
                       />
@@ -216,10 +214,12 @@ export function LoginForm({
                 }}
               />
 
-              <Alert variant="destructive">
-                <AlertOctagonIcon />{" "}
-                <AlertDescription>Invalid email or password</AlertDescription>
-              </Alert>
+              {!!errorMsg && errorMsg.length > 0 && (
+                <Alert variant="destructive" className="border-destructive">
+                  <AlertOctagonIcon />{" "}
+                  <AlertDescription>{errorMsg}</AlertDescription>
+                </Alert>
+              )}
 
               <Field>
                 <Button type="submit" isLoading={form.formState.isSubmitting}>

@@ -106,42 +106,6 @@ export default async function ExplorePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="text-2xl">👻</div>
-            <span className="text-lg font-bold tracking-tight">
-              Spooky Dev Quiz
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/explore" className="text-sm text-primary font-medium">
-              Explore
-            </Link>
-            <Link
-              href="/create-quiz"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Create Quiz
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-              Sign In
-            </Button>
-            <Button
-              size="sm"
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              My Quizzes
-            </Button>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className="border-b border-border/40 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4 py-12">
@@ -239,7 +203,7 @@ export default async function ExplorePage() {
                 </CardContent>
 
                 <CardFooter>
-                  <Link href={`/quiz?id=${quiz.id}`} className="w-full">
+                  <Link href={`/quiz/${quiz.id}`} className="w-full">
                     <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                       Start Quiz
                     </Button>
