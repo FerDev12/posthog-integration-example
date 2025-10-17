@@ -104,6 +104,7 @@ export const quizesRelations = relations(quizes, ({ one, many }) => ({
     references: [users.id],
   }),
   questions: many(quizQuestions),
+  sessions: many(quizSessions),
 }));
 
 export const quizQuestions = pgTable("quiz_questions", {
@@ -128,7 +129,7 @@ export const quizQuestionsRelations = relations(
       references: [quizes.id],
     }),
     answers: many(quizAnswers),
-  }),
+  })
 );
 
 export const quizAnswers = pgTable(
@@ -150,7 +151,7 @@ export const quizAnswers = pgTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (t) => [unique("question_answer").on(t.questionId, t.answer)],
+  (t) => [unique("question_answer").on(t.questionId, t.answer)]
 );
 
 export const quizAnswersRelations = relations(quizAnswers, ({ one }) => ({
@@ -168,7 +169,7 @@ export const quizSessions = pgTable("quiz_sessions", {
     () => quizQuestions.id,
     {
       onDelete: "cascade",
-    },
+    }
   ),
   score: integer("score").default(0).notNull(),
   startedAt: timestamp("started_at", { withTimezone: true })
@@ -176,3 +177,17 @@ export const quizSessions = pgTable("quiz_sessions", {
     .notNull(),
   endedAt: timestamp("ended_at", { withTimezone: true }),
 });
+
+export const quizSessionsRelations = relations(quizSessions, ({ one }) => ({
+  user: one(users, { fields: [quizSessions.userId], references: [users.id] }),
+  quiz: one(quizes, { fields: [quizSessions.quizId], references: [quizes.id] }),
+}));
+
+export type Quiz = typeof quizes.$inferSelect;
+export type QuizQuestion = typeof quizQuestions.$inferSelect;
+export type QuizAnswer = typeof quizAnswers.$inferSelect;
+export type QuizSession = typeof quizSessions.$inferSelect;
+
+export type QuizWithQuestionsAndAnswers = Quiz & {
+  questions: (QuizQuestion & { answers: QuizAnswer[] })[];
+};
