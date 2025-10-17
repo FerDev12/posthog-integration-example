@@ -1,4 +1,20 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  pgEnum,
+  integer,
+  unique,
+} from "drizzle-orm/pg-core";
+
+export const quizDifficulty = pgEnum("quiz_level", [
+  "begginer",
+  "easy",
+  "medium",
+  "hard",
+]);
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -58,4 +74,124 @@ export const verifications = pgTable("verifications", {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+});
+
+export const quizCategories = pgTable("quiz_categories", {
+  id: text("id").primaryKey().$defaultFn(crypto.randomUUID),
+  name: text("name").unique().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const quizCategoriesRelations = relations(
+  quizCategories,
+  ({ many }) => ({
+    quizes: many(quizes),
+  }),
+);
+
+export const quizes = pgTable("quizes", {
+  id: text("id").primaryKey().$defaultFn(crypto.randomUUID),
+  title: text("title").notNull(),
+  difficulty: quizDifficulty("difficulty").notNull(),
+  imageUrl: text("image_url"),
+  description: text("description"),
+  createdById: text("created_by").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  categoryId: text("category_id").references(() => quizCategories.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const quizesRelations = relations(quizes, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [quizes.createdById],
+    references: [users.id],
+  }),
+  category: one(quizCategories, {
+    fields: [quizes.categoryId],
+    references: [quizCategories.id],
+  }),
+  questions: many(quizQuestions),
+}));
+
+export const quizQuestions = pgTable("quiz_questions", {
+  id: text("id").primaryKey().$default(crypto.randomUUID),
+  question: text("question").notNull(),
+  quizId: text("quiz_id").references(() => quizes.id, { onDelete: "cascade" }),
+  order: integer("order").default(1).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const quizQuestionsRelations = relations(
+  quizQuestions,
+  ({ one, many }) => ({
+    quiz: one(quizes, { fields: [quizQuestions.id], references: [quizes.id] }),
+    answers: many(quizAnswers),
+  }),
+);
+
+export const quizAnswers = pgTable(
+  "quiz_answers",
+  {
+    id: text("id").primaryKey().$default(crypto.randomUUID),
+    answer: text("answer").notNull(),
+    questionId: text("question_id").references(() => quizQuestions.id, {
+      onDelete: "cascade",
+    }),
+    order: integer("order").default(1).notNull(),
+    isCorrect: boolean("is_correct").default(false).notNull(),
+    explanation: text("explanation"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (t) => [unique("question_answer").on(t.questionId, t.answer)],
+);
+
+export const quizAnswersRelations = relations(quizAnswers, ({ one }) => ({
+  question: one(quizQuestions, {
+    fields: [quizAnswers.questionId],
+    references: [quizQuestions.id],
+  }),
+}));
+
+export const quizSessions = pgTable("quiz_sessions", {
+  id: text("id").primaryKey().$default(crypto.randomUUID),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+  quizId: text("quiz_id").references(() => quizes.id, { onDelete: "cascade" }),
+  currentQuestionId: text("current_question_id").references(
+    () => quizQuestions.id,
+    {
+      onDelete: "cascade",
+    },
+  ),
+  score: integer("score").default(0).notNull(),
+  startedAt: timestamp("started_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
 });

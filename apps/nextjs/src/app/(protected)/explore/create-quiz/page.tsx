@@ -11,5 +11,5 @@ export default async function CreateQuizPage() {
     return redirectToSignIn();
   }
 
-  return <div>Create Quiz</div>;
+  return <div></div>;
 }
