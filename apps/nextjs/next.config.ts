@@ -9,8 +9,10 @@ const nextConfig: NextConfig = {
 };
 
 const isProd = process.env.NODE_ENV === "production";
+const POSTHOG_ENV_ID = process.env.POSTHOG_ENV_ID;
+const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY;
 
-export default isProd
+export default isProd && !!POSTHOG_ENV_ID && !!POSTHOG_API_KEY
   ? withPostHogConfig(nextConfig, {
       personalApiKey: process.env.POSTHOG_API_KEY!, // Personal API Key
       envId: process.env.POSTHOG_ENV_ID!, // Environment ID
