@@ -3,6 +3,9 @@ import { withPostHogConfig } from "@posthog/nextjs-config";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  images: {
+    remotePatterns: [new URL("https://yidm609cah.ufs.sh/**/*")],
+  },
 };
 
 const isProd = process.env.NODE_ENV === "production";

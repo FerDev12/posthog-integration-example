@@ -29,6 +29,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { QUIZ_CATEGORY } from "@/constants";
+import { UploadButton, UploadDropzone } from "@/lib/utils/uploadthing";
+import Image from "next/image";
 
 const DEFAULT_VALUES: Partial<CreateQuizDto> = {
   title: "",
@@ -139,6 +141,8 @@ export function CreateQuizForm() {
     }
   };
 
+  const image = form.watch("imageUrl");
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -204,25 +208,36 @@ export function CreateQuizForm() {
                   }}
                 />
 
-                <Controller
-                  name="imageUrl"
-                  control={form.control}
-                  render={({ field, fieldState }) => {
-                    return (
-                      <Field>
-                        <FieldLabel>Image URL (Optional)</FieldLabel>
-                        <Input
-                          {...field}
-                          aria-invalid={fieldState.invalid}
-                          placeholder="https://example.com/image.jpg"
-                        />
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                />
+                <Field>
+                  <FieldLabel>Image</FieldLabel>
+
+                  {!!image && (
+                    <div className="relative h-56 ">
+                      <Image
+                        src={image}
+                        alt="uploaded image"
+                        fill
+                        objectFit="contain"
+                      />
+                    </div>
+                  )}
+                  {!image && (
+                    <UploadDropzone
+                      appearance={{
+                        button:
+                          "!bg-primary !text-primary-foreground ut-uploading:bg-primary/90 ut-ready:bg-green-500",
+                      }}
+                      className="bg-muted"
+                      endpoint="quizImage"
+                      onUploadError={(error) => {
+                        toast.error(error.message);
+                      }}
+                      onClientUploadComplete={(res) => {
+                        form.setValue("imageUrl", res[0].ufsUrl);
+                      }}
+                    />
+                  )}
+                </Field>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Controller
@@ -382,7 +397,7 @@ export function CreateQuizForm() {
                                 (answer, index) => ({
                                   ...answer,
                                   isCorrect: index === parseInt(value) - 1,
-                                }),
+                                })
                               );
                               field.onChange(newAnswers);
                             }}
@@ -416,7 +431,7 @@ export function CreateQuizForm() {
                       control={form.control}
                       render={({ field }) => {
                         const correctAnswer = field.value.find(
-                          (answer) => answer.isCorrect,
+                          (answer) => answer.isCorrect
                         );
                         return (
                           <Field>
@@ -430,7 +445,7 @@ export function CreateQuizForm() {
                                     explanation: answer.isCorrect
                                       ? e.target.value
                                       : answer.explanation,
-                                  }),
+                                  })
                                 );
                                 field.onChange(newAnswers);
                               }}
