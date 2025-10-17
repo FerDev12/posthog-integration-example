@@ -1,10 +1,10 @@
-import { Features } from "@/components/features";
-import { FinalCTA } from "@/components/final-cta";
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
-import { Hero } from "@/components/hero";
-import { Pricing } from "@/components/pricing";
-import { Testimonials } from "@/components/testimonials";
+import { Features } from "@/app/(public)/_components/features";
+import { FinalCTA } from "@/app/(public)/_components/final-cta";
+import { Footer } from "@/app/(public)/_components/footer";
+import { Header } from "@/app/(public)/_components/header";
+import { Hero } from "@/app/(public)/_components/hero";
+import { Pricing } from "@/app/(public)/_components/pricing";
+import { Testimonials } from "@/app/(public)/_components/testimonials";
 
 export default function LandingPage() {
   return (

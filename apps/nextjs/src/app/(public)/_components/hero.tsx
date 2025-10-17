@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import heroImg from ".././../public/images/spooky-halloween-pumpkin-coding-on-computer-in-dar.jpg";
+import heroImg from ".././../../../public/images/spooky-halloween-pumpkin-coding-on-computer-in-dar.jpg";
 
 export function Hero() {
   return (

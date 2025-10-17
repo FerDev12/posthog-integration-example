@@ -1,0 +1,277 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Clock, Users, Trophy, Search, Filter } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirectToSignIn } from "@/lib/utils/navigation";
+
+const quizzes = [
+  {
+    id: 1,
+    title: "JavaScript Nightmares",
+    description:
+      "Test your knowledge of JavaScript's most haunting features and edge cases",
+    difficulty: "Hard",
+    questions: 15,
+    participants: 1234,
+    avgTime: "12 min",
+    category: "JavaScript",
+    image: "/spooky-javascript-code-on-dark-screen.jpg",
+  },
+  {
+    id: 2,
+    title: "React Haunted Hooks",
+    description:
+      "Navigate through the mysterious world of React hooks and their dark secrets",
+    difficulty: "Medium",
+    questions: 20,
+    participants: 2341,
+    avgTime: "15 min",
+    category: "React",
+    image: "/spooky-react-logo-with-hooks.jpg",
+  },
+  {
+    id: 3,
+    title: "CSS Graveyard",
+    description: "Uncover the buried treasures and cursed properties of CSS",
+    difficulty: "Easy",
+    questions: 10,
+    participants: 3456,
+    avgTime: "8 min",
+    category: "CSS",
+    image: "/spooky-css-code-with-ghost.jpg",
+  },
+  {
+    id: 4,
+    title: "TypeScript Terror",
+    description:
+      "Face the frightening world of advanced TypeScript types and generics",
+    difficulty: "Hard",
+    questions: 18,
+    participants: 987,
+    avgTime: "20 min",
+    category: "TypeScript",
+    image: "/spooky-typescript-code.jpg",
+  },
+  {
+    id: 5,
+    title: "Node.js Nightshift",
+    description:
+      "Explore the dark corners of Node.js runtime and async mysteries",
+    difficulty: "Medium",
+    questions: 12,
+    participants: 1567,
+    avgTime: "10 min",
+    category: "Node.js",
+    image: "/spooky-nodejs-server-room.jpg",
+  },
+  {
+    id: 6,
+    title: "Git Horror Stories",
+    description: "Survive the scariest merge conflicts and rebase nightmares",
+    difficulty: "Easy",
+    questions: 8,
+    participants: 4321,
+    avgTime: "6 min",
+    category: "Git",
+    image: "/spooky-git-branches.jpg",
+  },
+];
+
+export default async function ExplorePage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return redirectToSignIn();
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="text-2xl">👻</div>
+            <span className="text-lg font-bold tracking-tight">
+              Spooky Dev Quiz
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-6">
+            <Link href="/explore" className="text-sm text-primary font-medium">
+              Explore
+            </Link>
+            <Link
+              href="/create-quiz"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Create Quiz
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
+              Sign In
+            </Button>
+            <Button
+              size="sm"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              My Quizzes
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="border-b border-border/40 bg-gradient-to-b from-background to-muted/20">
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance">
+              Explore <span className="text-primary">Spooky</span> Quizzes
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 text-pretty">
+              Dare to test your developer knowledge with our collection of
+              haunting quizzes
+            </p>
+
+            {/* Search and Filter */}
+            <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search quizzes..."
+                  className="pl-10 bg-background"
+                />
+              </div>
+              <Select defaultValue="all">
+                <SelectTrigger className="w-full sm:w-[180px] bg-background">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Levels</SelectItem>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quiz Grid */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {quizzes.map((quiz) => (
+              <Card
+                key={quiz.id}
+                className="overflow-hidden hover:border-primary/50 transition-colors group"
+              >
+                <div className="relative h-48 overflow-hidden bg-muted">
+                  <img
+                    src={quiz.image || "/placeholder.svg"}
+                    alt={quiz.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <Badge className="absolute top-4 right-4 bg-background/90 text-foreground border-border">
+                    {quiz.category}
+                  </Badge>
+                </div>
+
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <CardTitle className="text-xl">{quiz.title}</CardTitle>
+                    <Badge
+                      variant={
+                        quiz.difficulty === "Hard"
+                          ? "destructive"
+                          : quiz.difficulty === "Medium"
+                            ? "secondary"
+                            : "outline"
+                      }
+                      className="shrink-0"
+                    >
+                      {quiz.difficulty}
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-sm">
+                    {quiz.description}
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Trophy className="h-4 w-4" />
+                      <span>{quiz.questions} Q</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="h-4 w-4" />
+                      <span>{quiz.participants.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      <span>{quiz.avgTime}</span>
+                    </div>
+                  </div>
+                </CardContent>
+
+                <CardFooter>
+                  <Link href={`/quiz?id=${quiz.id}`} className="w-full">
+                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                      Start Quiz
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="border-t border-border/40 bg-muted/20">
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Create Your Own Spooky Quiz
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Share your developer knowledge and challenge the community
+            </p>
+            <Link href="/create-quiz">
+              <Button
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                Create Quiz
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
