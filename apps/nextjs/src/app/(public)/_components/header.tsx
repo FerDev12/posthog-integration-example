@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function Header() {
+  function intentionalError() {
+    toast.error("Something went wrong");
+    throw Error("Intentional Error");
+  }
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -49,9 +54,7 @@ export function Header() {
           <Button
             size="sm"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => {
-              throw new Error("Quiz not started");
-            }}
+            onClick={intentionalError}
           >
             Start Quiz
           </Button>
