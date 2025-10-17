@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 
@@ -47,6 +49,9 @@ export function Header() {
           <Button
             size="sm"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => {
+              throw new Error("Quiz not started");
+            }}
           >
             Start Quiz
           </Button>
