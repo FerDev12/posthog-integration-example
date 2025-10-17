@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,21 +21,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Plus, Trash2, Save, Eye } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { createQuizDto, CreateQuizDto } from "@/dtos/create-quiz.dto";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createQuiz } from "@/actions/create-quiz";
+import { createQuiz } from "@/actions/create-quiz.action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-
-interface Question {
-  id: string;
-  question: string;
-  options: { id: string; text: string }[];
-  correctAnswer: string;
-  explanation: string;
-}
+import { QUIZ_CATEGORY } from "@/constants";
 
 const DEFAULT_VALUES: Partial<CreateQuizDto> = {
   title: "",
@@ -48,20 +39,24 @@ const DEFAULT_VALUES: Partial<CreateQuizDto> = {
       order: 1,
       answers: [
         {
+          answer: "",
+          isCorrect: false,
           order: 1,
-          answer: "",
         },
         {
+          answer: "",
+          isCorrect: false,
           order: 2,
-          answer: "",
         },
         {
+          answer: "",
+          isCorrect: false,
           order: 3,
-          answer: "",
         },
         {
-          order: 4,
           answer: "",
+          isCorrect: false,
+          order: 4,
         },
       ],
     },
@@ -76,8 +71,30 @@ export function CreateQuizForm() {
     defaultValues: DEFAULT_VALUES,
   });
 
+  const {
+    fields: questionFields,
+    append: appendQuestion,
+    remove: removeQuestion,
+  } = useFieldArray({
+    control: form.control,
+    name: "questions",
+  });
+
   async function handleCreateQuiz(data: CreateQuizDto) {
-    const response = await createQuiz(data);
+    // Transform the data to ensure proper order values
+    const transformedData: CreateQuizDto = {
+      ...data,
+      questions: data.questions.map((question, qIndex) => ({
+        ...question,
+        order: qIndex + 1,
+        answers: question.answers.map((answer, aIndex) => ({
+          ...answer,
+          order: aIndex + 1,
+        })),
+      })),
+    };
+
+    const response = await createQuiz(transformedData);
     if (response.success) {
       toast.success(`Your new quiz has been created and published.`);
       router.push(`/my-quizzes`);
@@ -86,66 +103,40 @@ export function CreateQuizForm() {
     }
   }
 
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: "1",
-      question: "",
-      options: [
-        { id: "a", text: "" },
-        { id: "b", text: "" },
-        { id: "c", text: "" },
-        { id: "d", text: "" },
-      ],
-      correctAnswer: "",
-      explanation: "",
-    },
-  ]);
-
   const addQuestion = () => {
-    const newQuestion: Question = {
-      id: Date.now().toString(),
+    const newQuestion = {
       question: "",
-      options: [
-        { id: "a", text: "" },
-        { id: "b", text: "" },
-        { id: "c", text: "" },
-        { id: "d", text: "" },
+      order: questionFields.length + 1,
+      answers: [
+        {
+          answer: "",
+          isCorrect: false,
+          order: 1,
+        },
+        {
+          answer: "",
+          isCorrect: false,
+          order: 2,
+        },
+        {
+          answer: "",
+          isCorrect: false,
+          order: 3,
+        },
+        {
+          answer: "",
+          isCorrect: false,
+          order: 4,
+        },
       ],
-      correctAnswer: "",
-      explanation: "",
     };
-    setQuestions([...questions, newQuestion]);
+    appendQuestion(newQuestion);
   };
 
-  const removeQuestion = (id: string) => {
-    if (questions.length > 1) {
-      setQuestions(questions.filter((q) => q.id !== id));
+  const handleRemoveQuestion = (index: number) => {
+    if (questionFields.length > 1) {
+      removeQuestion(index);
     }
-  };
-
-  const updateQuestion = (id: string, field: string, value: string) => {
-    setQuestions(
-      questions.map((q) => (q.id === id ? { ...q, [field]: value } : q)),
-    );
-  };
-
-  const updateOption = (
-    questionId: string,
-    optionId: string,
-    value: string,
-  ) => {
-    setQuestions(
-      questions.map((q) =>
-        q.id === questionId
-          ? {
-              ...q,
-              options: q.options.map((opt) =>
-                opt.id === optionId ? { ...opt, text: value } : opt,
-              ),
-            }
-          : q,
-      ),
-    );
   };
 
   return (
@@ -213,19 +204,50 @@ export function CreateQuizForm() {
                   }}
                 />
 
+                <Controller
+                  name="imageUrl"
+                  control={form.control}
+                  render={({ field, fieldState }) => {
+                    return (
+                      <Field>
+                        <FieldLabel>Image URL (Optional)</FieldLabel>
+                        <Input
+                          {...field}
+                          aria-invalid={fieldState.invalid}
+                          placeholder="https://example.com/image.jpg"
+                        />
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Controller
-                    name="categoryId"
+                    name="category"
                     control={form.control}
                     render={({ field, fieldState }) => {
                       return (
                         <Field>
-                          <FieldLabel>Category</FieldLabel>
-                          <Input
-                            {...field}
-                            aria-invalid={fieldState.invalid}
-                            placeholder="e.g., JavaScript, React, CSS"
-                          />
+                          <FieldLabel htmlFor="category">Category</FieldLabel>
+                          <Select
+                            value={field.value}
+                            disabled={field.disabled}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger id="category">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.values(QUIZ_CATEGORY).map((v) => (
+                                <SelectItem key={v} value={v}>
+                                  {v}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           {fieldState.invalid && (
                             <FieldError errors={[fieldState.error]} />
                           )}
@@ -269,7 +291,7 @@ export function CreateQuizForm() {
 
             {/* Questions */}
             <div className="space-y-6 mb-6">
-              {questions.map((question, qIndex) => (
+              {questionFields.map((question, qIndex) => (
                 <Card key={question.id} className="border-primary/30">
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -279,11 +301,12 @@ export function CreateQuizForm() {
                           Question Details
                         </CardTitle>
                       </div>
-                      {questions.length > 1 && (
+                      {questionFields.length > 1 && (
                         <Button
+                          type="button"
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeQuestion(question.id)}
+                          onClick={() => handleRemoveQuestion(qIndex)}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -293,48 +316,50 @@ export function CreateQuizForm() {
                   </CardHeader>
 
                   <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`question-${question.id}`}>
-                        Question
-                      </Label>
-                      <Textarea
-                        id={`question-${question.id}`}
-                        placeholder="Enter your question..."
-                        value={question.question}
-                        onChange={(e) =>
-                          updateQuestion(
-                            question.id,
-                            "question",
-                            e.target.value,
-                          )
-                        }
-                        rows={2}
-                      />
-                    </div>
+                    <Controller
+                      name={`questions.${qIndex}.question`}
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <FieldLabel>Question</FieldLabel>
+                          <Textarea
+                            {...field}
+                            placeholder="Enter your question..."
+                            aria-invalid={fieldState.invalid}
+                            rows={2}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      )}
+                    />
 
                     <div className="space-y-3">
                       <Label>Answer Options</Label>
-                      {question.options.map((option, oIndex) => (
-                        <div
-                          key={option.id}
-                          className="flex items-center gap-3"
-                        >
+                      {question.answers.map((_, aIndex) => (
+                        <div key={aIndex} className="flex items-center gap-3">
                           <Badge
                             variant="secondary"
                             className="w-8 h-8 flex items-center justify-center shrink-0"
                           >
-                            {option.id.toUpperCase()}
+                            {String.fromCharCode(65 + aIndex)}
                           </Badge>
-                          <Input
-                            placeholder={`Option ${option.id.toUpperCase()}`}
-                            value={option.text}
-                            onChange={(e) =>
-                              updateOption(
-                                question.id,
-                                option.id,
-                                e.target.value,
-                              )
-                            }
+                          <Controller
+                            name={`questions.${qIndex}.answers.${aIndex}.answer`}
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                              <div className="flex-1">
+                                <Input
+                                  {...field}
+                                  placeholder={`Option ${String.fromCharCode(65 + aIndex)}`}
+                                  aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                  <FieldError errors={[fieldState.error]} />
+                                )}
+                              </div>
+                            )}
                           />
                         </div>
                       ))}
@@ -342,52 +367,80 @@ export function CreateQuizForm() {
 
                     <div className="space-y-2">
                       <Label>Correct Answer</Label>
-                      <RadioGroup
-                        value={question.correctAnswer}
-                        onValueChange={(value) =>
-                          updateQuestion(question.id, "correctAnswer", value)
-                        }
-                      >
-                        <div className="flex gap-4">
-                          {question.options.map((option) => (
-                            <div
-                              key={option.id}
-                              className="flex items-center space-x-2"
-                            >
-                              <RadioGroupItem
-                                value={option.id}
-                                id={`correct-${question.id}-${option.id}`}
-                              />
-                              <Label
-                                htmlFor={`correct-${question.id}-${option.id}`}
-                                className="cursor-pointer"
-                              >
-                                {option.id.toUpperCase()}
-                              </Label>
+                      <Controller
+                        name={`questions.${qIndex}.answers`}
+                        control={form.control}
+                        render={({ field }) => (
+                          <RadioGroup
+                            value={
+                              field.value
+                                .find((answer) => answer.isCorrect)
+                                ?.order?.toString() || ""
+                            }
+                            onValueChange={(value) => {
+                              const newAnswers = field.value.map(
+                                (answer, index) => ({
+                                  ...answer,
+                                  isCorrect: index === parseInt(value) - 1,
+                                }),
+                              );
+                              field.onChange(newAnswers);
+                            }}
+                          >
+                            <div className="flex gap-4">
+                              {field.value.map((_, aIndex) => (
+                                <div
+                                  key={aIndex}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <RadioGroupItem
+                                    value={(aIndex + 1).toString()}
+                                    id={`correct-${qIndex}-${aIndex}`}
+                                  />
+                                  <Label
+                                    htmlFor={`correct-${qIndex}-${aIndex}`}
+                                    className="cursor-pointer"
+                                  >
+                                    {String.fromCharCode(65 + aIndex)}
+                                  </Label>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor={`explanation-${question.id}`}>
-                        Explanation (Optional)
-                      </Label>
-                      <Textarea
-                        id={`explanation-${question.id}`}
-                        placeholder="Explain why this is the correct answer..."
-                        value={question.explanation}
-                        onChange={(e) =>
-                          updateQuestion(
-                            question.id,
-                            "explanation",
-                            e.target.value,
-                          )
-                        }
-                        rows={2}
+                          </RadioGroup>
+                        )}
                       />
                     </div>
+
+                    <Controller
+                      name={`questions.${qIndex}.answers`}
+                      control={form.control}
+                      render={({ field }) => {
+                        const correctAnswer = field.value.find(
+                          (answer) => answer.isCorrect,
+                        );
+                        return (
+                          <Field>
+                            <FieldLabel>Explanation (Optional)</FieldLabel>
+                            <Textarea
+                              value={correctAnswer?.explanation || ""}
+                              onChange={(e) => {
+                                const newAnswers = field.value.map(
+                                  (answer) => ({
+                                    ...answer,
+                                    explanation: answer.isCorrect
+                                      ? e.target.value
+                                      : answer.explanation,
+                                  }),
+                                );
+                                field.onChange(newAnswers);
+                              }}
+                              placeholder="Explain why this is the correct answer..."
+                              rows={2}
+                            />
+                          </Field>
+                        );
+                      }}
+                    />
                   </CardContent>
                 </Card>
               ))}
@@ -395,6 +448,7 @@ export function CreateQuizForm() {
 
             {/* Add Question Button */}
             <Button
+              type="button"
               variant="outline"
               onClick={addQuestion}
               className="w-full mb-6 border-dashed border-2 h-12 bg-transparent"
@@ -405,14 +459,15 @@ export function CreateQuizForm() {
 
             {/* Action Buttons */}
             <div className="flex gap-4">
-              <Button
+              {/*<Button
+                type="button"
                 variant="outline"
-                className="flex-1 bg-transparent"
+                className="flex-1 bg-transparent shrink-0 w-full"
                 onClick={() => console.log("[v0] Preview quiz")}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 Preview
-              </Button>
+              </Button>*/}
 
               <Field>
                 <Button

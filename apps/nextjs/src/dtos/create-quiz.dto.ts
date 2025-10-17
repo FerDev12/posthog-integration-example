@@ -1,3 +1,4 @@
+import { QUIZ_CATEGORY } from "@/constants";
 import { z } from "zod";
 
 const quizAnswerSchema = z.object({
@@ -13,10 +14,12 @@ const quizQuestionSchema = z.object({
   answers: z.array(quizAnswerSchema),
 });
 
+const quizCategory = z.enum(QUIZ_CATEGORY);
+
 export const createQuizDto = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
-  categoryId: z.string(),
+  category: quizCategory,
   imageUrl: z.url().optional(),
   difficulty: z.enum(["easy", "medium", "hard"]),
   questions: z.array(quizQuestionSchema),

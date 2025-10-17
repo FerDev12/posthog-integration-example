@@ -1,5 +1,5 @@
 {
-  "id": "d748b4f6-4b76-45db-b9f0-7173f2520bca",
+  "id": "e8eb1629-355e-4930-8666-29b5d38e503b",
   "prevId": "57971824-ac9f-43b8-a5fb-047ce55ca6e5",
   "version": "7",
   "dialect": "postgresql",
@@ -146,6 +146,12 @@
           "notNull": true,
           "default": false
         },
+        "explanation": {
+          "name": "explanation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -185,53 +191,6 @@
           "columns": [
             "question_id",
             "answer"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.quiz_categories": {
-      "name": "quiz_categories",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "quiz_categories_name_unique": {
-          "name": "quiz_categories_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
           ]
         }
       },
@@ -443,11 +402,11 @@
           "primaryKey": false,
           "notNull": false
         },
-        "category_id": {
-          "name": "category_id",
-          "type": "text",
+        "category": {
+          "name": "category",
+          "type": "quiz_categories",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -472,19 +431,6 @@
           "tableTo": "users",
           "columnsFrom": [
             "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "quizes_category_id_quiz_categories_id_fk": {
-          "name": "quizes_category_id_quiz_categories_id_fk",
-          "tableFrom": "quizes",
-          "tableTo": "quiz_categories",
-          "columnsFrom": [
-            "category_id"
           ],
           "columnsTo": [
             "id"
@@ -702,6 +648,23 @@
     }
   },
   "enums": {
+    "public.quiz_categories": {
+      "name": "quiz_categories",
+      "schema": "public",
+      "values": [
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Node",
+        "HTML",
+        "CSS",
+        "Go",
+        "Git",
+        "Frontend",
+        "Backend",
+        "Other"
+      ]
+    },
     "public.quiz_level": {
       "name": "quiz_level",
       "schema": "public",

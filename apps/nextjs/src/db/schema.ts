@@ -1,3 +1,4 @@
+import { QUIZ_CATEGORY } from "@/constants";
 import { relations } from "drizzle-orm";
 import {
   pgTable,
@@ -15,6 +16,8 @@ export const quizDifficulty = pgEnum("quiz_level", [
   "medium",
   "hard",
 ]);
+
+export const quizCategories = pgEnum("quiz_categories", QUIZ_CATEGORY);
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -76,25 +79,6 @@ export const verifications = pgTable("verifications", {
     .notNull(),
 });
 
-export const quizCategories = pgTable("quiz_categories", {
-  id: text("id").primaryKey().$defaultFn(crypto.randomUUID),
-  name: text("name").unique().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
-
-export const quizCategoriesRelations = relations(
-  quizCategories,
-  ({ many }) => ({
-    quizes: many(quizes),
-  }),
-);
-
 export const quizes = pgTable("quizes", {
   id: text("id").primaryKey().$defaultFn(crypto.randomUUID),
   title: text("title").notNull(),
@@ -104,9 +88,7 @@ export const quizes = pgTable("quizes", {
   createdById: text("created_by").references(() => users.id, {
     onDelete: "set null",
   }),
-  categoryId: text("category_id").references(() => quizCategories.id, {
-    onDelete: "set null",
-  }),
+  category: quizCategories("category").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -120,10 +102,6 @@ export const quizesRelations = relations(quizes, ({ one, many }) => ({
   createdBy: one(users, {
     fields: [quizes.createdById],
     references: [users.id],
-  }),
-  category: one(quizCategories, {
-    fields: [quizes.categoryId],
-    references: [quizCategories.id],
   }),
   questions: many(quizQuestions),
 }));
@@ -145,7 +123,10 @@ export const quizQuestions = pgTable("quiz_questions", {
 export const quizQuestionsRelations = relations(
   quizQuestions,
   ({ one, many }) => ({
-    quiz: one(quizes, { fields: [quizQuestions.id], references: [quizes.id] }),
+    quiz: one(quizes, {
+      fields: [quizQuestions.quizId],
+      references: [quizes.id],
+    }),
     answers: many(quizAnswers),
   }),
 );

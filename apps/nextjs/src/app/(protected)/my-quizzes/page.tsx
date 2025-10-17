@@ -23,9 +23,10 @@ import { headers } from "next/headers";
 import { redirectToSignIn } from "@/lib/utils/navigation";
 import { db } from "@/db";
 
-async function getAllQuizes() {
+async function getMyQuizes(userId: string) {
   try {
     return await db.query.quizes.findMany({
+      where: (q, { eq }) => eq(q.createdById, userId),
       with: {
         questions: {
           with: {
@@ -49,7 +50,7 @@ export default async function ExplorePage() {
     return redirectToSignIn();
   }
 
-  const quizzes = await getAllQuizes();
+  const quizzes = await getMyQuizes(session.user.id);
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,12 +59,8 @@ export default async function ExplorePage() {
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance">
-              Explore <span className="text-primary">Spooky</span> Quizzes
+              My <span className="text-primary">Spooky</span> Quizzes
             </h1>
-            <p className="text-lg text-muted-foreground mb-8 text-pretty">
-              Dare to test your developer knowledge with our collection of
-              haunting quizzes
-            </p>
 
             {/* Search and Filter */}
             <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">

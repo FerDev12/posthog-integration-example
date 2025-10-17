@@ -52,7 +52,7 @@ export async function createQuiz(data: CreateQuizDto): Promise<ActionResult> {
           description: result.data.description,
           imageUrl: result.data.imageUrl,
           createdById: user.id,
-          categoryId: result.data.categoryId,
+          category: result.data.category,
           difficulty: result.data.difficulty,
         })
         .returning({ id: quizes.id });
