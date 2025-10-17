@@ -16,7 +16,7 @@ export async function ProtectedHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/explore" className="flex items-center gap-2">
           <div className="text-2xl">👻</div>
           <span className="text-lg font-bold tracking-tight">
             Spooky Dev Quiz
