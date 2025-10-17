@@ -1,5 +1,7 @@
+import { FrownIcon } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
-import jackOLantern from '../../public/images/jack-o-lantern.webp'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -10,10 +12,8 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import Link from "next/link"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
-import { FrownIcon } from "lucide-react"
-import Image from "next/image"
+import jackOLantern from '../../public/images/jack-o-lantern.webp'
 
 export type LoginFormProps = React.ComponentProps<"div"> & {
   isSignUp?: boolean
@@ -110,7 +110,7 @@ export function LoginForm({
             </FieldGroup>
           </form>
           <div className="bg-muted relative hidden md:block">
-            <Image src={jackOLantern} alt='Jack O lantern' fill />
+            <Image src={jackOLantern} placeholder='blur' alt='Jack O lantern' fill />
           </div>
         </CardContent>
       </Card>
