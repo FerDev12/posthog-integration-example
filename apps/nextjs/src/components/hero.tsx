@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import heroImg from ".././../public/images/spooky-halloween-pumpkin-coding-on-computer-in-dar.jpg";
 
 export function Hero() {
   return (
@@ -65,11 +66,12 @@ export function Hero() {
             <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
             <div className="relative rounded-lg border border-border/40 bg-card/50 backdrop-blur p-8">
               <Image
-                src="/spooky-halloween-pumpkin-coding-on-computer-in-dar.jpg"
+                src={heroImg}
                 alt="Spooky coding atmosphere"
                 width={500}
                 height={500}
                 className="rounded-lg"
+                placeholder="blur"
                 priority
               />
             </div>

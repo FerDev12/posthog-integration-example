@@ -1,36 +1,38 @@
-import { FrownIcon } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { FrownIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
-import jackOLantern from '../../public/images/jack-o-lantern.webp'
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import jackOLantern from "../../public/images/jack-o-lantern.webp";
 
 export type LoginFormProps = React.ComponentProps<"div"> & {
-  isSignUp?: boolean
-}
+  isSignUp?: boolean;
+};
 
 export function LoginForm({
   className,
   isSignUp = false,
   ...props
 }: LoginFormProps) {
-
-  const title = isSignUp ? 'Welcome back!' : 'Create your account'
-  const description = isSignUp ? 'Login to your account' : 'Fill up the form to create your new account'
+  const title = isSignUp ? "Welcome back!" : "Create your account";
+  const description = isSignUp
+    ? "Login to your account"
+    : "Fill up the form to create your new account";
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
+      <Card className="relative p-0 bg-card/90">
+        <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full -z-10" />
         <CardContent className="grid p-0 md:grid-cols-2">
           <form className="p-6 md:p-8">
             <FieldGroup>
@@ -104,13 +106,23 @@ export function LoginForm({
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                {isSignUp ? 'Have an account?' : `Don't have an account?`}{' '}
-                <Link href={isSignUp ? '/sign-in' : '/sign-up'} className='transition-colors'>{isSignUp ? 'Sign In' : 'Sign Up'}</Link>
+                {isSignUp ? "Have an account?" : `Don't have an account?`}{" "}
+                <Link
+                  href={isSignUp ? "/sign-in" : "/sign-up"}
+                  className="transition-colors"
+                >
+                  {isSignUp ? "Sign In" : "Sign Up"}
+                </Link>
               </FieldDescription>
             </FieldGroup>
           </form>
           <div className="bg-muted relative hidden md:block">
-            <Image src={jackOLantern} placeholder='blur' alt='Jack O lantern' fill />
+            <Image
+              src={jackOLantern}
+              placeholder="blur"
+              alt="Jack O lantern"
+              fill
+            />
           </div>
         </CardContent>
       </Card>
@@ -118,6 +130,6 @@ export function LoginForm({
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
-    </div >
-  )
+    </div>
+  );
 }
