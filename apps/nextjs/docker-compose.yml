@@ -2,12 +2,12 @@ version: "3.8"
 
 services:
   postgres:
-    image: postgres:15-alpine
-    container_name: posthog-postgres
+    image: postgres:17-alpine
+    container_name: spooky-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: posthog
-      POSTGRES_USER: posthog
+      POSTGRES_DB: spooky-quizz
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
@@ -15,7 +15,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U posthog -d posthog"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d spooky-quizz"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,4 +26,4 @@ volumes:
 
 networks:
   default:
-    name: posthog-network
+    name: spooky-network
