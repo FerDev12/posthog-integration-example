@@ -14,7 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Posthog Example",
+  title: "👻 Spooqy Quizz",
+  description:
+    "A fun and interactive quiz app built with Next.js and Tailwind CSS.",
 };
 
 export default function RootLayout({

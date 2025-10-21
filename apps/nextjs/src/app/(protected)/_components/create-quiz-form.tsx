@@ -228,6 +228,7 @@ export function CreateQuizForm() {
                           "!bg-primary !text-primary-foreground ut-uploading:bg-primary/90 ut-ready:bg-green-500",
                       }}
                       className="bg-muted"
+                      // endpoint="quizImage"
                       endpoint="quizImage"
                       onUploadError={(error) => {
                         toast.error(error.message);
@@ -397,7 +398,7 @@ export function CreateQuizForm() {
                                 (answer, index) => ({
                                   ...answer,
                                   isCorrect: index === parseInt(value) - 1,
-                                })
+                                }),
                               );
                               field.onChange(newAnswers);
                             }}
@@ -431,7 +432,7 @@ export function CreateQuizForm() {
                       control={form.control}
                       render={({ field }) => {
                         const correctAnswer = field.value.find(
-                          (answer) => answer.isCorrect
+                          (answer) => answer.isCorrect,
                         );
                         return (
                           <Field>
@@ -445,7 +446,7 @@ export function CreateQuizForm() {
                                     explanation: answer.isCorrect
                                       ? e.target.value
                                       : answer.explanation,
-                                  })
+                                  }),
                                 );
                                 field.onChange(newAnswers);
                               }}
